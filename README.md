@@ -1,1 +1,1 @@
-# EmojiScript
+# Script
