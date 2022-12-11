@@ -109,7 +109,7 @@ Script.prototype.toJavaScript = function (input) {
         continue;
       }
 
-      let LETTERS = /[a-z_$-]/i;
+      let LETTERS = /[\u4E00-\u9FA5a-z_$-]/i;
       if (LETTERS.test(char)) {
         let value = '';
 
@@ -117,11 +117,27 @@ Script.prototype.toJavaScript = function (input) {
         while (LETTERS.test(char)) {
           value += char;
           char = input[++current];
+          //console.log(value)
         }
 
         // 并把这种名称类型的标记存到标记数组中，继续循环
         tokens.push({ type: '名字', value });
+        continue;
+      }
 
+      let JUHAO = "。";
+      if (char === JUHAO) {
+        //input[current].replace(JUHAO,";");// 将句号替换成分号
+        tokens.push({ type: '符号', value: ";" });
+        current++;
+        continue;
+      }
+
+      let SIZEYUNSUAN = /[\+\*/\-]/;
+      if (SIZEYUNSUAN.test(char)) {
+        let value = char;
+        tokens.push({ type: '符号', value });
+        current++;
         continue;
       }
 
@@ -130,31 +146,32 @@ Script.prototype.toJavaScript = function (input) {
     //console.log(tokens);
     return tokens;
   }
-  function _toJavaScript(tokens){
+  function _toJavaScript(tokens) {
     //console.log(tokens[0].type)
-    let i=-1;
-    while(i<tokens.length-1){
+    let i = -1;
+    while (i < tokens.length - 1) {
       i++;
-      switch(tokens[i].type){
-        case "标签":{
-          tokens[i].value=tokens[i].value.replaceAll("有","var");
+      // 判断类型，进行替换
+      switch (tokens[i].type) {
+        case "标签": {
+          tokens[i].value = tokens[i].value.replaceAll("有", "var");
           continue;
         }
         //break;
-        case "符号":{
-          tokens[i].value=tokens[i].value.replaceAll("值为","=");
+        case "符号": {
+          tokens[i].value = tokens[i].value.replaceAll("值为", "=");
           continue;
         };
         //break;
-        case "字符串":{
-          tokens[i].value=`"${tokens[i].value}"`;
+        case "字符串": {
+          tokens[i].value = `"${tokens[i].value}"`;
           continue;
         }
         //break;
       }
     }
     console.log(tokens);
-    return tokens.map((x)=>{return x.value}).join(" ");
+    return tokens.map((x) => { return x.value }).join(" ");
   }
   //console.log(_toJavaScript(tokenizer('有xyz，值为 “1235”')))
   return _toJavaScript(tokenizer(input))
