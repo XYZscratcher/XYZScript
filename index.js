@@ -1,4 +1,5 @@
 function Script(code) {
+  // 如果用户没有使用“new”关键字，就返回new Script
   if (!(this instanceof Script)) {
     return new Script(code);
   }
@@ -59,8 +60,8 @@ Script.prototype.toJavaScript = function (input) {
         }
       }
 
-      let WHITESPACE = /\s/;
-      if (WHITESPACE.test(char)) {
+      let WHITESPACE_AND_OTHER = /[\s,]/;
+      if (WHITESPACE_AND_OTHER.test(char)) {
         current++;
         continue;
       }
@@ -86,6 +87,28 @@ Script.prototype.toJavaScript = function (input) {
         continue;
       }
 
+      if (char === '"') {
+        // 保留一个 `value` 变量来构建我们的字符串标记。
+        let value = '';
+
+        // 我们将跳过编辑中开头的双引号
+        char = input[++current];
+
+        // 然后我们将遍历每个字符，直到我们到达另一个双引号
+        while (char !== '"') {
+          value += char;
+          char = input[++current];
+        }
+
+        // 跳过相对应闭合的双引号.
+        char = input[++current];
+
+        // 把我们的字符串标记添加到标记数组中
+        tokens.push({ type: '字符串', value });
+
+        continue;
+      }
+
       let LETTERS = /[a-z_$-]/i;
       if (LETTERS.test(char)) {
         let value = '';
@@ -104,10 +127,36 @@ Script.prototype.toJavaScript = function (input) {
 
       throw new SyntaxError('I dont know what this character is: ' + char);
     }
-    console.log(tokens);
+    //console.log(tokens);
     return tokens;
   }
-  tokenizer('有$xyz值为1235')
+  function _toJavaScript(tokens){
+    //console.log(tokens[0].type)
+    let i=-1;
+    while(i<tokens.length-1){
+      i++;
+      switch(tokens[i].type){
+        case "标签":{
+          tokens[i].value=tokens[i].value.replaceAll("有","var");
+          continue;
+        }
+        //break;
+        case "符号":{
+          tokens[i].value=tokens[i].value.replaceAll("值为","=");
+          continue;
+        };
+        //break;
+        case "字符串":{
+          tokens[i].value=`"${tokens[i].value}"`;
+          continue;
+        }
+        //break;
+      }
+    }
+    console.log(tokens);
+    return tokens.map((x)=>{return x.value}).join(" ");
+  }
+  console.log(_toJavaScript(tokenizer('有 xyz,值为 1235')))
 }
 const es = new Script();
 es.toJavaScript(``);
