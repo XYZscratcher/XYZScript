@@ -60,7 +60,7 @@ Script.prototype.toJavaScript = function (input) {
         }
       }
 
-      let WHITESPACE_AND_OTHER = /[\s,]/;
+      let WHITESPACE_AND_OTHER = /[\s，]/;
       if (WHITESPACE_AND_OTHER.test(char)) {
         current++;
         continue;
@@ -87,7 +87,7 @@ Script.prototype.toJavaScript = function (input) {
         continue;
       }
 
-      if (char === '"') {
+      if (char === '“') {
         // 保留一个 `value` 变量来构建我们的字符串标记。
         let value = '';
 
@@ -95,7 +95,7 @@ Script.prototype.toJavaScript = function (input) {
         char = input[++current];
 
         // 然后我们将遍历每个字符，直到我们到达另一个双引号
-        while (char !== '"') {
+        while (char !== '”') {
           value += char;
           char = input[++current];
         }
@@ -156,7 +156,9 @@ Script.prototype.toJavaScript = function (input) {
     console.log(tokens);
     return tokens.map((x)=>{return x.value}).join(" ");
   }
-  console.log(_toJavaScript(tokenizer('有 xyz,值为 1235')))
+  //console.log(_toJavaScript(tokenizer('有xyz，值为 “1235”')))
+  return _toJavaScript(tokenizer(input))
 }
-const es = new Script();
-es.toJavaScript(``);
+//const es = new Script();
+//es.toJavaScript(``);
+export default Script;
